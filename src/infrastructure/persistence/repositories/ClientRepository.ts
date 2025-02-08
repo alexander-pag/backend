@@ -1,0 +1,47 @@
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { IClientRepository } from 'src/core/domain/client/repositories/IClientRepository';
+import { ClientEntity } from '../entities/ClientEntity';
+import { ClientId } from 'src/core/domain/client/value-objects/clientId';
+import { Client } from 'src/core/domain/client/client.entity';
+import { ClientMapper } from '../mappers/ClientMapper';
+
+@Injectable()
+export class ClientRepository implements IClientRepository {
+  constructor(
+    @InjectRepository(ClientEntity)
+    private readonly clientRepository: Repository<ClientEntity>,
+  ) {}
+
+  async findById(id: ClientId): Promise<Client | null> {
+    const clientEntity = await this.clientRepository.findOne({
+      where: { id: id.value },
+    });
+
+    if (!clientEntity) {
+      return null;
+    }
+
+    return ClientMapper.toDomain(clientEntity);
+  }
+
+  async findAll(): Promise<Client[]> {
+    const clientEntities = await this.clientRepository.find();
+
+    return clientEntities.map((clientEntity) =>
+      ClientMapper.toDomain(clientEntity),
+    );
+  }
+
+  async save(client: Client): Promise<void> {
+    const clientEntity = ClientMapper.toEntity(client);
+    await this.clientRepository.save(clientEntity);
+  }
+
+  async delete(id: ClientId): Promise<void> {
+    await this.clientRepository.delete({
+      id: id.value,
+    });
+  }
+}
