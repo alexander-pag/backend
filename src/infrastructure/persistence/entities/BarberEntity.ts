@@ -4,8 +4,10 @@ import {
   Column,
   ManyToOne,
   JoinColumn,
+  OneToMany,
 } from 'typeorm';
 import { UserEntity } from './UserEntity';
+import { AppointmentEntity } from './AppointmentEntity';
 
 @Entity('barber')
 export class BarberEntity {
@@ -26,7 +28,16 @@ export class BarberEntity {
   })
   isActive: boolean;
 
+  @Column({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
+  createdAt: Date;
+
   @ManyToOne(() => UserEntity, (user) => user.barbers)
   @JoinColumn({ name: 'userId' })
   user: UserEntity;
+
+  @OneToMany(() => AppointmentEntity, (appointment) => appointment.barber)
+  appointments: AppointmentEntity[];
 }

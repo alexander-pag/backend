@@ -1,6 +1,5 @@
 import { CreateUserDto } from 'src/core/application/user/dtos/CreateUserDto';
 import { BarberShopId } from '../barberShop/value-objects/barberShopId';
-import { UserError } from './exceptions/UserError';
 import { UserEmail } from './value-objects/userEmail';
 import { UserId } from './value-objects/userId';
 import { UserName } from './value-objects/userName';
@@ -8,15 +7,17 @@ import { UserPassword } from './value-objects/userPassword';
 import { UserPhone } from './value-objects/userPhone';
 import { UserRole } from './value-objects/userRole';
 import { Roles } from 'src/core/value-objects/user-role/roles';
+import { UserIsActive } from './value-objects/userIsActive';
+import { DomainError } from 'src/core/exceptions/domain/DomainError';
 
-export class User {
+export class UserDomain {
   constructor(
     private readonly _barberShopId: BarberShopId,
     private _name: UserName,
     private _email: UserEmail,
     private _password: UserPassword,
     private _phone: UserPhone,
-    private _isActive: boolean,
+    private _isActive?: UserIsActive,
     private _role?: UserRole,
     private readonly _id?: UserId,
   ) {
@@ -51,23 +52,22 @@ export class User {
     return this._role;
   }
 
-  get isActive(): boolean {
+  get isActive(): UserIsActive {
     return this._isActive;
   }
 
   update(
     fields: Partial<{
-      barberShopId: BarberShopId;
       name: UserName;
       email: UserEmail;
       password: UserPassword;
       phone: UserPhone;
-      isActive: boolean;
+      isActive: UserIsActive;
       role: UserRole;
     }>,
-  ): User {
-    return new User(
-      fields.barberShopId || this._barberShopId,
+  ): UserDomain {
+    return new UserDomain(
+      this._barberShopId,
       fields.name || this._name,
       fields.email || this._email,
       fields.password || this._password,
@@ -78,17 +78,18 @@ export class User {
     );
   }
 
-  static create(createUserDto: CreateUserDto): User {
-    return new User(
+  static create(
+    createUserDto: CreateUserDto,
+    role: Roles = Roles.CLIENT,
+  ): UserDomain {
+    return new UserDomain(
       new BarberShopId(createUserDto.barberShopId),
       new UserName(createUserDto.name),
       new UserEmail(createUserDto.email),
       new UserPassword(createUserDto.password),
       new UserPhone(createUserDto.phone),
-      createUserDto.isActive,
-      createUserDto.role
-        ? new UserRole(createUserDto.role)
-        : new UserRole(Roles.CLIENT),
+      new UserIsActive(true),
+      new UserRole(role),
     );
   }
 
@@ -98,19 +99,19 @@ export class User {
 
   private validate(): void {
     if (!this._barberShopId) {
-      throw new UserError('El ID de la barbería no puede estar vacío.');
+      throw new DomainError('El ID de la barbería no puede estar vacío.');
     }
     if (!this._name) {
-      throw new UserError('El nombre del usuario no puede estar vacío.');
+      throw new DomainError('El nombre del usuario no puede estar vacío.');
     }
     if (!this._email) {
-      throw new UserError('El email del usuario no puede estar vacío.');
+      throw new DomainError('El email del usuario no puede estar vacío.');
     }
     if (!this._password) {
-      throw new UserError('La contraseña del usuario no puede estar vacía.');
+      throw new DomainError('La contraseña del usuario no puede estar vacía.');
     }
     if (!this._phone) {
-      throw new UserError('El teléfono del usuario no puede estar vacío.');
+      throw new DomainError('El teléfono del usuario no puede estar vacío.');
     }
   }
 }

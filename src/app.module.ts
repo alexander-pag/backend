@@ -14,6 +14,11 @@ import { ServiceModule } from './infrastructure/modules/service.module';
 import { BarberShopEntity } from './infrastructure/persistence/entities/BarberShopEntity';
 import { BarberShopModule } from './infrastructure/modules/barberShop.module';
 import { AuthModule } from './infrastructure/modules/auth.module';
+import { SubscriptionEntity } from './infrastructure/persistence/entities/SubscriptionEntity';
+import { SubscriptionModule } from './infrastructure/modules/subscription.module';
+import { PaymentEntity } from './infrastructure/persistence/entities/PaymentEntity';
+import { PaymentModule } from './infrastructure/modules/payment.module';
+import { ReportsModule } from './infrastructure/modules/reports.module';
 
 @Module({
   imports: [
@@ -28,6 +33,8 @@ import { AuthModule } from './infrastructure/modules/auth.module';
         BarberEntity,
         ServiceEntity,
         BarberShopEntity,
+        SubscriptionEntity,
+        PaymentEntity,
       ],
       synchronize: true,
     }),
@@ -38,6 +45,9 @@ import { AuthModule } from './infrastructure/modules/auth.module';
     ServiceModule,
     BarberShopModule,
     AuthModule,
+    SubscriptionModule,
+    PaymentModule,
+    ReportsModule,
   ],
   controllers: [],
   providers: [],

@@ -1,24 +1,29 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserRegisterUseCase } from 'src/core/application/user/use-cases/UserRegisterUseCase';
 import { UserGetAllUseCase } from 'src/core/application/user/use-cases/UserGetAllUseCase';
 import { UserGetByIdUseCase } from 'src/core/application/user/use-cases/UserGetByIdUseCase';
 import { UserUpdateUseCase } from 'src/core/application/user/use-cases/UserUpdateUseCase';
 import { UserValidationService } from 'src/core/domain/user/service/UserValidationService';
-import { UserEntity } from 'src/infrastructure/persistence/entities/UserEntity';
 import { UserRepository } from 'src/infrastructure/persistence/repositories/UserRepository';
 import { UserController } from '../http/controllers/user.controller';
 import { UserResetPasswordUseCase } from 'src/core/application/user/use-cases/UserResetPasswordUseCase';
 import { BcryptHashingService } from '../services/BcryptHashingService';
 import { UserLoginUseCase } from 'src/core/application/user/use-cases/UserLoginUseCase';
 import { UserCreateUserUseCase } from 'src/core/application/user/use-cases/UserCreateUserUseCase';
-import { ClientValidationService } from 'src/core/domain/client/service/ClientValidationService';
-import { BarberValidationService } from 'src/core/domain/barber/service/BarberValidationService';
-import { SharedModule } from './shared.module';
 import { UserGetAllByBarberShopUseCase } from 'src/core/application/user/use-cases/UserGetAllByBarberShopUseCase';
+import { UserCreateAdminUseCase } from 'src/core/application/user/use-cases/UserCreateAdminUseCase';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { UserEntity } from '../persistence/entities/UserEntity';
+import { SharedModule } from './shared.module';
+import { BarberShopModule } from './barberShop.module';
+import { BarberShopValidationService } from 'src/core/domain/barberShop/service/BarberShopValidationService';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([UserEntity]), SharedModule],
+  imports: [
+    TypeOrmModule.forFeature([UserEntity]),
+    SharedModule,
+    BarberShopModule,
+  ],
   providers: [
     {
       provide: 'BcryptHashingService',
@@ -29,14 +34,21 @@ import { UserGetAllByBarberShopUseCase } from 'src/core/application/user/use-cas
       useFactory: (
         userRepository: UserRepository,
         userService: UserValidationService,
+        barberShopService: BarberShopValidationService,
         bcryptHashingService: BcryptHashingService,
       ) =>
         new UserRegisterUseCase(
           userRepository,
           userService,
+          barberShopService,
           bcryptHashingService,
         ),
-      inject: ['IUserRepository', 'UserService', 'BcryptHashingService'],
+      inject: [
+        'IUserRepository',
+        'UserService',
+        'BarberShopService',
+        'BcryptHashingService',
+      ],
     },
     {
       provide: UserLoginUseCase,
@@ -51,26 +63,25 @@ import { UserGetAllByBarberShopUseCase } from 'src/core/application/user/use-cas
       useFactory: (
         userRepository: UserRepository,
         userService: UserValidationService,
-        clientService: ClientValidationService,
-        barberService: BarberValidationService,
+        bcryptHashingService: BcryptHashingService,
       ) => ({
         update: new UserUpdateUseCase(userRepository, userService),
         getAll: new UserGetAllUseCase(userRepository),
         getAllByBarberShop: new UserGetAllByBarberShopUseCase(userRepository),
         getById: new UserGetByIdUseCase(userRepository),
         create: new UserCreateUserUseCase(
+          userRepository,
           userService,
-          clientService,
-          barberService,
+          bcryptHashingService,
         ),
         resetPassword: new UserResetPasswordUseCase(userRepository),
+        createAdmin: new UserCreateAdminUseCase(
+          userRepository,
+          userService,
+          bcryptHashingService,
+        ),
       }),
-      inject: [
-        'IUserRepository',
-        'UserService',
-        'ClientService',
-        'BarberService',
-      ],
+      inject: ['IUserRepository', 'UserService', 'BcryptHashingService'],
     },
   ],
   controllers: [UserController],

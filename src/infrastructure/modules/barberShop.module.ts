@@ -9,6 +9,7 @@ import { BarberShopGetAllUseCase } from 'src/core/application/barberShop/use-cas
 import { BarberShopGetByIdUseCase } from 'src/core/application/barberShop/use-cases/BarberShopGetByIdUseCase';
 import { BarberShopDeleteUseCase } from 'src/core/application/barberShop/use-cases/BarberShopDeleteUseCase';
 import { BarberShopController } from '../http/controllers/barberShop.controller';
+import { AssignSubscriptionToBarberShopUseCase } from 'src/core/application/barberShop/use-cases/AssignSubscriptionToBarberShopUseCase';
 
 @Module({
   imports: [TypeOrmModule.forFeature([BarberShopEntity])],
@@ -40,11 +41,14 @@ import { BarberShopController } from '../http/controllers/barberShop.controller'
         getAll: new BarberShopGetAllUseCase(barberShopRepository),
         getById: new BarberShopGetByIdUseCase(barberShopRepository),
         delete: new BarberShopDeleteUseCase(barberShopRepository),
+        assignSubscription: new AssignSubscriptionToBarberShopUseCase(
+          barberShopRepository,
+        ),
       }),
       inject: ['IBarberShopRepository', 'BarberShopService'],
     },
   ],
   controllers: [BarberShopController],
-  exports: ['BarberShopService'],
+  exports: ['BarberShopService', 'IBarberShopRepository'],
 })
 export class BarberShopModule {}

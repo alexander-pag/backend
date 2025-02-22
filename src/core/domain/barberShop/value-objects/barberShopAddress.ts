@@ -28,5 +28,8 @@ export class BarberShopAddress {
         'La dirección de la barbería solo puede contener letras, números y espacios',
       );
     }
+    if (typeof this.value !== 'string') {
+      throw new DomainError('La dirección de la barbería debe ser un string');
+    }
   }
 }

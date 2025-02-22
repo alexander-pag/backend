@@ -1,4 +1,4 @@
-import { Barber } from '../barber.entity';
+import { BarberDomain } from '../barber.entity';
 import { IBarberRepository } from '../repositories/IBarberRepository';
 import { BarberId } from '../value-objects/barberId';
 
@@ -10,7 +10,7 @@ export class BarberValidationService {
     return !!barber;
   }
 
-  async save(barber: Barber): Promise<void> {
+  async save(barber: BarberDomain): Promise<void> {
     await this.barberRepository.save(barber);
   }
 }

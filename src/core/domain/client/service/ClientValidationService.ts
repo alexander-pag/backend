@@ -1,4 +1,4 @@
-import { Client } from '../client.entity';
+import { ClientDomain } from '../client.entity';
 import { IClientRepository } from '../repositories/IClientRepository';
 import { ClientId } from '../value-objects/clientId';
 
@@ -10,7 +10,7 @@ export class ClientValidationService {
     return !!client;
   }
 
-  async save(client: Client): Promise<void> {
+  async save(client: ClientDomain): Promise<void> {
     await this.clientRepository.save(client);
   }
 }

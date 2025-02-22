@@ -1,6 +1,4 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { BarberEntity } from 'src/infrastructure/persistence/entities/BarberEntity';
 import { BarberRepository } from 'src/infrastructure/persistence/repositories/BarberRepository';
 import { BarberCreateUseCase } from 'src/core/application/barber/use-cases/BarberCreateUseCase';
 import { BarberUpdateUseCase } from 'src/core/application/barber/use-cases/BarberUpdateUseCase';
@@ -10,6 +8,8 @@ import { UserValidationService } from 'src/core/domain/user/service/UserValidati
 import { BarberValidationService } from 'src/core/domain/barber/service/BarberValidationService';
 import { BarberDeleteUseCase } from 'src/core/application/barber/use-cases/BarberDeleteUseCase';
 import { BarberController } from '../http/controllers/barber.controller';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { BarberEntity } from '../persistence/entities/BarberEntity';
 import { SharedModule } from './shared.module';
 
 @Module({
@@ -22,7 +22,7 @@ import { SharedModule } from './shared.module';
         userService: UserValidationService,
         barberService: BarberValidationService,
       ) => ({
-        create: new BarberCreateUseCase(barberRepository, userService),
+        create: new BarberCreateUseCase(barberRepository),
         update: new BarberUpdateUseCase(
           barberRepository,
           barberService,

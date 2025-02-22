@@ -3,12 +3,13 @@ import { ClientId } from './value-objects/clientId';
 import { ClientError } from './exceptions/ClientError';
 import { CreateClientDto } from 'src/core/application/client/dtos/CreateClientDto';
 import { BarberShopId } from '../barberShop/value-objects/barberShopId';
+import { ClientIsActive } from './value-objects/clientIsActive';
 
-export class Client {
+export class ClientDomain {
   constructor(
     private _userId: UserId,
     private readonly _barberShopId: BarberShopId,
-    private readonly _isActive: boolean,
+    private readonly _isActive: ClientIsActive,
     private readonly _id?: ClientId,
   ) {
     this.validate();
@@ -26,17 +27,17 @@ export class Client {
     return this._barberShopId;
   }
 
-  get isActive(): boolean {
+  get isActive(): ClientIsActive {
     return this._isActive;
   }
 
   update(
     fields: Partial<{
       userId: UserId;
-      isActive: boolean;
+      isActive: ClientIsActive;
     }>,
-  ): Client {
-    return new Client(
+  ): ClientDomain {
+    return new ClientDomain(
       fields.userId || this._userId,
       this._barberShopId,
       fields.isActive || this._isActive,
@@ -44,11 +45,11 @@ export class Client {
     );
   }
 
-  static create(createClientDto: CreateClientDto): Client {
-    return new Client(
+  static create(createClientDto: CreateClientDto): ClientDomain {
+    return new ClientDomain(
       new UserId(createClientDto.userId),
       new BarberShopId(createClientDto.barberShopId),
-      createClientDto.isActive,
+      new ClientIsActive(true),
     );
   }
 

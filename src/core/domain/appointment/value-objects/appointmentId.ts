@@ -13,5 +13,8 @@ export class AppointmentId {
     if (!this.value) {
       throw new DomainError('El id de la cita no puede estar vacío.');
     }
+    if (typeof this.value !== 'string') {
+      throw new DomainError('El id de la cita debe ser un string.');
+    }
   }
 }

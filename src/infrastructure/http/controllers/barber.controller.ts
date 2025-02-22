@@ -7,9 +7,7 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import { CreateBarberDto } from 'src/core/application/barber/dtos/CreateBarberDto';
 import { UpdateBarberDto } from 'src/core/application/barber/dtos/UpdateBarberDto';
-import { BarberCreateUseCase } from 'src/core/application/barber/use-cases/BarberCreateUseCase';
 import { BarberDeleteUseCase } from 'src/core/application/barber/use-cases/BarberDeleteUseCase';
 import { BarberGetAllUseCase } from 'src/core/application/barber/use-cases/BarberGetAllUseCase';
 import { BarberGetByIdUseCase } from 'src/core/application/barber/use-cases/BarberGetByIdUseCase';
@@ -20,22 +18,12 @@ export class BarberController {
   constructor(
     @Inject('BarberUseCases')
     private readonly barberUseCases: {
-      create: BarberCreateUseCase;
       update: BarberUpdateUseCase;
       getAll: BarberGetAllUseCase;
       getById: BarberGetByIdUseCase;
       delete: BarberDeleteUseCase;
     },
   ) {}
-
-  @Post()
-  async createUser(@Body() createBarberDto: CreateBarberDto) {
-    try {
-      await this.barberUseCases.create.execute(createBarberDto);
-    } catch (error) {
-      console.error(error);
-    }
-  }
 
   @Get()
   async getAllUsers() {

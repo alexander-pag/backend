@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { AppointmentEntity } from './AppointmentEntity';
 
 @Entity('service')
 export class ServiceEntity {
@@ -17,6 +18,11 @@ export class ServiceEntity {
   @Column()
   duration: number;
 
-  @Column()
+  @Column({
+    default: true,
+  })
   isActive: boolean;
+
+  @OneToMany(() => AppointmentEntity, (appointment) => appointment.service)
+  appointments: AppointmentEntity[];
 }

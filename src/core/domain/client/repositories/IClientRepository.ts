@@ -1,9 +1,9 @@
-import { Client } from '../../client/client.entity';
+import { ClientDomain } from '../../client/client.entity';
 import { ClientId } from '../../client/value-objects/clientId';
 
 export interface IClientRepository {
-  findById(id: ClientId): Promise<Client | null>;
-  findAll(): Promise<Client[]>;
-  save(client: Client): Promise<void>;
+  findById(id: ClientId): Promise<ClientDomain | null>;
+  findAll(): Promise<ClientDomain[]>;
+  save(client: ClientDomain): Promise<ClientDomain | null>;
   delete(id: ClientId): Promise<void>;
 }

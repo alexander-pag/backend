@@ -1,6 +1,6 @@
 export enum Status {
-  PENDING = 'PENDIENTE',
-  CONFIRMED = 'CONFIRMADA',
-  CANCELED = 'CANCELADA',
-  COMPLETED = 'COMPLETADA',
+  PENDING = 'pending',
+  CONFIRMED = 'confirmed',
+  CANCELLED = 'canceled',
+  COMPLETED = 'completed',
 }

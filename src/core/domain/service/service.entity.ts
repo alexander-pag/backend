@@ -4,13 +4,15 @@ import { ServicePrice } from './value-objects/servicePrice';
 import { ServiceError } from './exceptions/ServiceError';
 import { ServiceId } from './value-objects/serviceId';
 import { CreateServiceDto } from 'src/core/application/service/dtos/CreateServiceDto';
+import { ServiceIsActive } from './value-objects/serviceIsActive';
+import { ServiceDuration } from './value-objects/serviceDuration';
 
 export class Service {
   constructor(
     private _name: ServiceName,
     private readonly _barberShopId: BarberShopId,
-    private readonly _isActive: boolean,
-    private readonly _duration: number,
+    private readonly _isActive: ServiceIsActive,
+    private readonly _duration: ServiceDuration,
     private _price: ServicePrice,
     private readonly _id?: ServiceId,
   ) {
@@ -25,11 +27,11 @@ export class Service {
     return this._name;
   }
 
-  get isActive(): boolean {
+  get isActive(): ServiceIsActive {
     return this._isActive;
   }
 
-  get duration(): number {
+  get duration(): ServiceDuration {
     return this._duration;
   }
 
@@ -45,8 +47,8 @@ export class Service {
     fields: Partial<{
       name: ServiceName;
       price: ServicePrice;
-      duration: number;
-      isActive: boolean;
+      duration: ServiceDuration;
+      isActive: ServiceIsActive;
     }>,
   ): Service {
     return new Service(
@@ -63,8 +65,8 @@ export class Service {
     return new Service(
       new ServiceName(createServiceDto.name),
       new BarberShopId(createServiceDto.barberShopId),
-      createServiceDto.isActive || true,
-      createServiceDto.duration,
+      new ServiceIsActive(true),
+      new ServiceDuration(createServiceDto.duration),
       new ServicePrice(createServiceDto.price),
     );
   }

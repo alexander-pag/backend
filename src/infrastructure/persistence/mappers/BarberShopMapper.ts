@@ -16,13 +16,14 @@ export class BarberShopMapper {
 
     barberShopEntity.id = barberShop.id?.value;
     barberShopEntity.name = barberShop.name.value;
-    barberShopEntity.subscriptionStatus = barberShop.subscriptionStatus.value;
     barberShopEntity.phone = barberShop.phone.value;
     barberShopEntity.email = barberShop.email.value;
     barberShopEntity.address = barberShop.address.value;
     barberShopEntity.neighborhood = barberShop.neighborhood.value;
     barberShopEntity.city = barberShop.city.value;
     barberShopEntity.state = barberShop.state.value;
+    barberShopEntity.subscriptionStatus = barberShop.subscriptionStatus?.value;
+    barberShopEntity.subscriptionId = barberShop.subscriptionId?.value;
 
     return barberShopEntity;
   }
@@ -36,6 +37,7 @@ export class BarberShopMapper {
       new BarberShopNeighborhood(barberShopEntity.neighborhood),
       new BarberShopCity(barberShopEntity.city),
       new BarberShopState(barberShopEntity.state),
+      undefined,
       new BarberShopSubscriptionStatus(barberShopEntity.subscriptionStatus),
       new BarberShopId(barberShopEntity.id),
     );

@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EntityManager, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { IUserRepository } from 'src/core/domain/user/repositories/IUserRepository';
 import { UserEntity } from '../entities/UserEntity';
 import { UserId } from 'src/core/domain/user/value-objects/userId';
-import { User } from 'src/core/domain/user/user.entity';
+import { UserDomain } from 'src/core/domain/user/user.entity';
 import { UserMapper } from '../mappers/UserMapper';
 import { UserEmail } from 'src/core/domain/user/value-objects/userEmail';
 import { UserPhone } from 'src/core/domain/user/value-objects/userPhone';
@@ -18,7 +18,7 @@ export class UserRepository implements IUserRepository {
     private readonly userRepository: Repository<UserEntity>,
   ) {}
 
-  async findById(id: UserId): Promise<User | null> {
+  async findById(id: UserId): Promise<UserDomain | null> {
     const userEntity = await this.userRepository.findOne({
       where: { id: id.value },
     });
@@ -27,7 +27,9 @@ export class UserRepository implements IUserRepository {
       return null;
     }
 
-    return UserMapper.toDomain(userEntity);
+    const userDomain = UserMapper.toDomain(userEntity, true);
+
+    return userDomain;
   }
 
   async resetPassword(id: UserId, password: UserPassword): Promise<void> {
@@ -43,7 +45,7 @@ export class UserRepository implements IUserRepository {
     await this.userRepository.save(userEntity);
   }
 
-  async findByEmail(email: UserEmail): Promise<User | null> {
+  async findByEmail(email: UserEmail): Promise<UserDomain | null> {
     const userEntity = await this.userRepository.findOne({
       where: { email: email.value },
     });
@@ -55,7 +57,7 @@ export class UserRepository implements IUserRepository {
     return UserMapper.toDomain(userEntity, true);
   }
 
-  async findByPhone(phone: UserPhone): Promise<User | null> {
+  async findByPhone(phone: UserPhone): Promise<UserDomain | null> {
     const userEntity = await this.userRepository.findOne({
       where: { phone: phone.value },
     });
@@ -67,7 +69,7 @@ export class UserRepository implements IUserRepository {
     return UserMapper.toPlainObject(UserMapper.toDomain(userEntity));
   }
 
-  async findAll(): Promise<User[]> {
+  async findAll(): Promise<UserDomain[]> {
     const userEntities = await this.userRepository.find();
 
     return userEntities.map((userEntity) =>
@@ -75,12 +77,10 @@ export class UserRepository implements IUserRepository {
     );
   }
 
-  async save(user: User): Promise<User> {
-    return await this.performTransaction(async (manager) => {
-      const userEntity = UserMapper.toEntity(user);
-      const userSaved = await manager.save(userEntity);
-      return UserMapper.toDomain(userSaved, true);
-    });
+  async save(user: UserDomain): Promise<UserDomain> {
+    const userEntity = UserMapper.toEntity(user);
+    const userSaved = await this.userRepository.save(userEntity);
+    return UserMapper.toDomain(userSaved, true);
   }
 
   async delete(id: UserId): Promise<void> {
@@ -89,7 +89,9 @@ export class UserRepository implements IUserRepository {
     });
   }
 
-  async findAllByBarberShopId(barberShopId: BarberShopId): Promise<User[]> {
+  async findAllByBarberShopId(
+    barberShopId: BarberShopId,
+  ): Promise<UserDomain[]> {
     const userEntities = await this.userRepository.find({
       where: { barberShopId: barberShopId.value },
     });
@@ -97,17 +99,5 @@ export class UserRepository implements IUserRepository {
     return userEntities.map((userEntity) =>
       UserMapper.toDomain(userEntity, true),
     );
-  }
-
-  private async performTransaction<T>(
-    operation: (manager: EntityManager) => Promise<T>,
-  ): Promise<T> {
-    return await this.userRepository.manager.transaction(async (manager) => {
-      try {
-        return await operation(manager);
-      } catch (error) {
-        throw error;
-      }
-    });
   }
 }

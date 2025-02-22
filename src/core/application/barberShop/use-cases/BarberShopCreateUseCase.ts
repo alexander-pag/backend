@@ -7,6 +7,8 @@ import { BarberShopEmailAlreadyExistsError } from '../exceptions/BarberShopEmail
 import { BarberShopPhone } from 'src/core/domain/barberShop/value-objects/barberShopPhone';
 import { BarberShopPhoneAlreadyExistsError } from '../exceptions/BarberShopPhoneAlreadyExistsError';
 import { BarberShopMapper } from 'src/infrastructure/persistence/mappers/BarberShopMapper';
+import { DomainEventDispatcher } from 'src/infrastructure/events/domain-event-dispatcher';
+import { BarberShopCreatedEvent } from 'src/core/domain/barberShop/barberShop-created.event';
 
 export class BarberShopCreateUseCase {
   constructor(
@@ -14,7 +16,7 @@ export class BarberShopCreateUseCase {
     private readonly barberShopService: BarberShopValidationService,
   ) {}
 
-  async execute(createBarberShopDto: CreateBarberShopDto): Promise<BarberShop> {
+  async execute(createBarberShopDto: CreateBarberShopDto): Promise<void> {
     const { email, phone } = createBarberShopDto;
 
     const emailExists = await this.barberShopService.isEmailUnique(
@@ -40,6 +42,10 @@ export class BarberShopCreateUseCase {
     const barberShop = BarberShop.create(createBarberShopDto);
 
     const barberShopSaved = await this.barberShopRepository.save(barberShop);
+
+    DomainEventDispatcher.dispatch(
+      new BarberShopCreatedEvent(barberShopSaved.id),
+    );
 
     return BarberShopMapper.toPlainObject(barberShopSaved);
   }

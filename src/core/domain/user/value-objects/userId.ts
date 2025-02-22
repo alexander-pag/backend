@@ -13,5 +13,8 @@ export class UserId {
     if (!this.value) {
       throw new DomainError('El id no puede estar vacío');
     }
+    if (typeof this.value !== 'string') {
+      throw new DomainError('El id del usuario debe ser un string.');
+    }
   }
 }

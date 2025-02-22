@@ -1,27 +1,21 @@
-import { UserId } from 'src/core/domain/user/value-objects/userId';
 import { IBarberRepository } from 'src/core/domain/barber/repositories/IBarberRepository';
-import { CreateBarberDto } from '../dtos/CreateBarberDto';
-import { UserValidationService } from 'src/core/domain/user/service/UserValidationService';
-import { UserNotFoundError } from '../../user/exceptions/UserNotFoundError';
-import { Barber } from 'src/core/domain/barber/barber.entity';
+import { BarberDomain } from 'src/core/domain/barber/barber.entity';
+import { DomainEventDispatcher } from 'src/infrastructure/events/domain-event-dispatcher';
+import { UserCreatedEvent } from 'src/core/domain/user/user-created.event';
+import { Roles } from 'src/core/value-objects/user-role/roles';
+import { CreateClientDto } from '../../client/dtos/CreateClientDto';
 
 export class BarberCreateUseCase {
-  constructor(
-    private readonly barberRepository: IBarberRepository,
-    private readonly userService: UserValidationService,
-  ) {}
+  constructor(private readonly barberRepository: IBarberRepository) {
+    DomainEventDispatcher.register('UserCreated', this.handle.bind(this));
+  }
 
-  async execute(createBarberDto: CreateBarberDto): Promise<void> {
-    const userExist = await this.userService.exists(
-      new UserId(createBarberDto.userId),
+  async handle(event: UserCreatedEvent) {
+    if (event.role !== Roles.BARBER) return;
+
+    const barber = BarberDomain.create(
+      new CreateClientDto(event.userId, event.barberShopId),
     );
-
-    if (!userExist) {
-      throw new UserNotFoundError('El usuario no existe.');
-    }
-
-    const barber = Barber.create(createBarberDto);
-
     await this.barberRepository.save(barber);
   }
 }

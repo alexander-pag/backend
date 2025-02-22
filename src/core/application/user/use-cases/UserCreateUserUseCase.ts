@@ -1,27 +1,25 @@
-import { BarberValidationService } from 'src/core/domain/barber/service/BarberValidationService';
-import { Client } from 'src/core/domain/client/client.entity';
-import { ClientValidationService } from 'src/core/domain/client/service/ClientValidationService';
 import { UserValidationService } from 'src/core/domain/user/service/UserValidationService';
-import { Roles } from 'src/core/value-objects/user-role/roles';
-import { CreateClientDto } from '../../client/dtos/CreateClientDto';
-import { Barber } from 'src/core/domain/barber/barber.entity';
-import { CreateBarberDto } from '../../barber/dtos/CreateBarberDto';
-import { CreateUserInput } from '../dtos/CreateUserInput';
 import { UserEmail } from 'src/core/domain/user/value-objects/userEmail';
-import { User } from 'src/core/domain/user/user.entity';
+import { UserDomain } from 'src/core/domain/user/user.entity';
 import { UserEmailAlreadyExistsError } from '../exceptions/UserEmailAlreadyExistsError';
 import { UserPhone } from 'src/core/domain/user/value-objects/userPhone';
 import { UserPhoneAlreadyExistsError } from '../exceptions/UserPhoneAlreadyExistsError';
+import { CreateUserDto } from '../dtos/CreateUserDto';
+import { DomainEventDispatcher } from 'src/infrastructure/events/domain-event-dispatcher';
+import { UserCreatedEvent } from 'src/core/domain/user/user-created.event';
+import { IUserRepository } from 'src/core/domain/user/repositories/IUserRepository';
+import { IHashingService } from 'src/core/domain/user/repositories/IHashingRepository';
+import { UserPassword } from 'src/core/domain/user/value-objects/userPassword';
 
 export class UserCreateUserUseCase {
   constructor(
+    private readonly userRepository: IUserRepository,
     private readonly userService: UserValidationService,
-    private readonly clientService: ClientValidationService,
-    private readonly barberService: BarberValidationService,
+    private readonly hashingService: IHashingService,
   ) {}
 
-  async execute(input: CreateUserInput): Promise<void> {
-    const { email, role, phone } = input;
+  async execute(createUserDto: CreateUserDto): Promise<void> {
+    const { email, role, phone } = createUserDto;
 
     const userEmailExists = await this.userService.isEmailUnique(
       new UserEmail(email),
@@ -37,23 +35,22 @@ export class UserCreateUserUseCase {
       throw new UserPhoneAlreadyExistsError('El teléfono ya existe.');
     }
 
-    const user = User.create({
-      barberShopId: input.barberShopId,
-      name: input.name,
-      email: input.email,
-      password: input.password,
-      phone: input.phone,
-      role: input.role,
-    });
+    const user = UserDomain.create(createUserDto);
 
-    const createdUser = await this.userService.save(user);
+    const hashedPassword = await this.hashingService.encryptPassword(
+      createUserDto.password,
+    );
 
-    if (role === Roles.CLIENT) {
-      const client = Client.create(new CreateClientDto(createdUser.id.value));
-      await this.clientService.save(client);
-    } else if (role === Roles.BARBER) {
-      const barber = Barber.create(new CreateBarberDto(createdUser.id.value));
-      await this.barberService.save(barber);
-    }
+    user.updatePassword(new UserPassword(hashedPassword, true));
+
+    const createdUser = await this.userRepository.save(user);
+
+    DomainEventDispatcher.dispatch(
+      new UserCreatedEvent(
+        createdUser.id.value,
+        createdUser.barberShopId.value,
+        role,
+      ),
+    );
   }
 }

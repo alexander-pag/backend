@@ -1,7 +1,6 @@
 import { IHashingService } from 'src/core/domain/user/repositories/IHashingRepository';
 import { IUserRepository } from 'src/core/domain/user/repositories/IUserRepository';
 import { UserEmail } from 'src/core/domain/user/value-objects/userEmail';
-import { UserNotFoundError } from '../exceptions/UserNotFoundError';
 import { UserInvalidCredentialsError } from '../exceptions/UserInvalidCredentialsError';
 
 export class UserLoginUseCase {
@@ -14,7 +13,7 @@ export class UserLoginUseCase {
     const user = await this.userRepository.findByEmail(new UserEmail(email));
 
     if (!user) {
-      throw new UserNotFoundError('El usuario no existe.');
+      throw new UserInvalidCredentialsError('Credenciales inválidas.');
     }
 
     const isPasswordValid = await this.hashingService.validatePassword(

@@ -1,3 +1,4 @@
+import { DomainError } from 'src/core/exceptions/domain/DomainError';
 import { IBarberShopRepository } from '../repositories/IBarberShopRepository';
 import { BarberShopEmail } from '../value-objects/barberShopEmail';
 import { BarberShopId } from '../value-objects/barberShopId';
@@ -5,11 +6,15 @@ import { BarberShopPhone } from '../value-objects/barberShopPhone';
 
 export class BarberShopValidationService {
   constructor(private readonly barberShopRepository: IBarberShopRepository) {}
-  async exists(barberShopId: BarberShopId): Promise<boolean> {
+  async exists(barberShopId: BarberShopId) {
     const barberShopExists =
       await this.barberShopRepository.findById(barberShopId);
 
-    return !!barberShopExists;
+    if (!barberShopExists) {
+      throw new DomainError('La barbería no existe');
+    }
+
+    return barberShopExists;
   }
 
   async isEmailUnique(email: BarberShopEmail): Promise<boolean> {

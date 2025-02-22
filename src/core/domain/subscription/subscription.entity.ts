@@ -1,64 +1,47 @@
-export enum SubscriptionPlan {
-  MONTHLY = 'monthly',
-  BIMONTHLY = 'bimonthly',
-  QUARTERLY = 'quarterly',
-  BIANNUAL = 'biannual',
-}
-
-export enum SubscriptionStatus {
-  ACTIVE = 'active',
-  PENDING = 'pending',
-  CANCELED = 'canceled',
-}
-
-export class CreateSubscriptionDto {
-  constructor(
-    public readonly barbershopId: string,
-    public readonly plan: SubscriptionPlan,
-    public readonly startDate: string,
-    public readonly endDate: string,
-    public readonly status?: SubscriptionStatus,
-    public readonly id?: string,
-  ) {}
-}
-
-export class UpdateSubscriptionDto {
-  constructor(
-    public readonly barbershopId?: string,
-    public readonly plan?: SubscriptionPlan,
-    public readonly startDate?: string,
-    public readonly endDate?: string,
-    public readonly status?: SubscriptionStatus,
-  ) {}
-}
+import { BarberShopId } from '../barberShop/value-objects/barberShopId';
+import { CreateSubscriptionDto } from 'src/core/application/subscription/dtos/CreateSubscriptionDto';
+import { SubscriptionDurationMonth } from './value-objects/subscriptionPlan';
+import { SubscriptionStartDate } from './value-objects/subscriptionStartDate';
+import { SubscriptionEndDate } from './value-objects/subscriptionEndDate';
+import { SubscriptionId } from './value-objects/subscriptionId';
+import { SubscriptionStatus } from './value-objects/subscriptionStatus';
+import { Status } from 'src/core/value-objects/subscription/status';
+import { DurationMonth } from 'src/core/value-objects/subscription/durationMonth';
+import { SubscriptionPrice } from './value-objects/subscriptionPrice';
+import { Price } from 'src/core/value-objects/subscription/price';
 
 export class Subscription {
   constructor(
-    private readonly _barbershopId: string,
-    private _plan: SubscriptionPlan,
-    private readonly _startDate: Date,
-    private readonly _endDate: Date,
-    private _status?: SubscriptionStatus,
-    private readonly _id?: string,
+    private readonly _barbershopId: BarberShopId,
+    private _durationMonth: SubscriptionDurationMonth,
+    private _price: SubscriptionPrice,
+    private readonly _startDate: SubscriptionStartDate,
+    private readonly _endDate: SubscriptionEndDate,
+    private _status: SubscriptionStatus,
+    private readonly _id?: SubscriptionId,
   ) {}
 
-  get id(): string | undefined {
+  get id(): SubscriptionId | undefined {
     return this._id;
   }
 
-  get barbershopId(): string {
+  get barbershopId(): BarberShopId {
     return this._barbershopId;
   }
 
-  get plan(): SubscriptionPlan {
-    return this._plan;
+  get durationMonth(): SubscriptionDurationMonth {
+    return this._durationMonth;
   }
 
-  get startDate(): Date {
+  get price(): SubscriptionPrice {
+    return this._price;
+  }
+
+  get startDate(): SubscriptionStartDate {
     return this._startDate;
   }
 
-  get endDate(): Date {
+  get endDate(): SubscriptionEndDate {
     return this._endDate;
   }
 
@@ -68,13 +51,15 @@ export class Subscription {
 
   update(
     fields: Partial<{
-      plan: SubscriptionPlan;
+      durationMonth: SubscriptionDurationMonth;
       status: SubscriptionStatus;
+      price: SubscriptionPrice;
     }>,
   ): Subscription {
     return new Subscription(
       this._barbershopId,
-      fields.plan || this._plan,
+      fields.durationMonth || this._durationMonth,
+      fields.price || this._price,
       this._startDate,
       this._endDate,
       fields.status || this._status,
@@ -84,12 +69,14 @@ export class Subscription {
 
   static create(createSubscriptionDto: CreateSubscriptionDto): Subscription {
     return new Subscription(
-      createSubscriptionDto.barbershopId,
-      createSubscriptionDto.plan,
-      new Date(createSubscriptionDto.startDate),
-      new Date(createSubscriptionDto.endDate),
-      createSubscriptionDto.status,
-      createSubscriptionDto.id,
+      new BarberShopId(createSubscriptionDto.barbershopId),
+      new SubscriptionDurationMonth(DurationMonth.MONTHLY),
+      new SubscriptionPrice(Price.MONTHLY),
+      new SubscriptionStartDate(new Date()),
+      new SubscriptionEndDate(
+        new Date(new Date().setMonth(new Date().getMonth() + 1)),
+      ),
+      new SubscriptionStatus(Status.PENDING),
     );
   }
 }

@@ -9,6 +9,7 @@ import { BarberShopNeighborhood } from './value-objects/barberShopNeighborhood';
 import { BarberShopPhone } from './value-objects/barberShopPhone';
 import { BarberShopState } from './value-objects/barberShopState';
 import { BarberShopSubscriptionStatus } from './value-objects/barberShopSubscriptionStatus';
+import { SubscriptionId } from '../subscription/value-objects/subscriptionId';
 
 export class BarberShop {
   constructor(
@@ -19,7 +20,7 @@ export class BarberShop {
     private _neighborhood: BarberShopNeighborhood,
     private _city: BarberShopCity,
     private _state: BarberShopState,
-    private readonly _subscriptionId: string,
+    private _subscriptionId?: SubscriptionId,
     private _subscriptionStatus?: BarberShopSubscriptionStatus,
     private readonly _id?: BarberShopId,
   ) {
@@ -62,8 +63,12 @@ export class BarberShop {
     return this._state;
   }
 
-  get subscriptionId(): string {
+  get subscriptionId(): SubscriptionId {
     return this._subscriptionId;
+  }
+
+  assignSubscription(subscriptionId: SubscriptionId): void {
+    this._subscriptionId = subscriptionId;
   }
 
   update(
@@ -101,14 +106,12 @@ export class BarberShop {
       new BarberShopNeighborhood(createBarberShopDto.neighborhood),
       new BarberShopCity(createBarberShopDto.city),
       new BarberShopState(createBarberShopDto.state),
-      undefined,
     );
   }
 
   private validate(): void {
     if (
       !this._name ||
-      !this._subscriptionStatus ||
       !this._phone ||
       !this._email ||
       !this._address ||

@@ -1,5 +1,5 @@
+import { DomainError } from 'src/core/exceptions/domain/DomainError';
 import { IUserRepository } from '../repositories/IUserRepository';
-import { User } from '../user.entity';
 import { UserEmail } from '../value-objects/userEmail';
 import { UserId } from '../value-objects/userId';
 import { UserPhone } from '../value-objects/userPhone';
@@ -7,23 +7,33 @@ import { UserPhone } from '../value-objects/userPhone';
 export class UserValidationService {
   constructor(private readonly userRepository: IUserRepository) {}
 
-  async exists(userId: UserId): Promise<boolean> {
+  async exists(userId: UserId) {
     const user = await this.userRepository.findById(userId);
-    return !!user;
+
+    if (!user) {
+      throw new DomainError('El usuario no existe');
+    }
+
+    return user;
   }
 
-  async isEmailUnique(email: UserEmail): Promise<boolean> {
+  async isEmailUnique(email: UserEmail) {
     const user = await this.userRepository.findByEmail(email);
 
-    return !!user;
+    if (user) {
+      throw new DomainError('El usuario ya existe');
+    }
+
+    return user;
   }
 
-  async isPhoneUnique(phone: UserPhone): Promise<boolean> {
+  async isPhoneUnique(phone: UserPhone) {
     const user = await this.userRepository.findByPhone(phone);
-    return !!user;
-  }
 
-  async save(user: User): Promise<User> {
-    return await this.userRepository.save(user);
+    if (user) {
+      throw new DomainError('El usuario ya existe');
+    }
+
+    return user;
   }
 }

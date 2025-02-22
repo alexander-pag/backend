@@ -1,12 +1,12 @@
 import { BarberShopId } from 'src/core/domain/barberShop/value-objects/barberShopId';
 import { IUserRepository } from 'src/core/domain/user/repositories/IUserRepository';
-import { User } from 'src/core/domain/user/user.entity';
+import { UserDomain } from 'src/core/domain/user/user.entity';
 import { UserMapper } from 'src/infrastructure/persistence/mappers/UserMapper';
 
 export class UserGetAllByBarberShopUseCase {
   constructor(private readonly userRepository: IUserRepository) {}
 
-  async execute(barberShopId: string): Promise<User[]> {
+  async execute(barberShopId: string): Promise<UserDomain[]> {
     const users = await this.userRepository.findAllByBarberShopId(
       new BarberShopId(barberShopId),
     );

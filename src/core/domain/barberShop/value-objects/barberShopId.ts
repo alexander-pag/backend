@@ -14,8 +14,8 @@ export class BarberShopId {
       throw new DomainError('El id de la barbería no puede estar vacío');
     }
 
-    if (!isNaN(Number(this.value))) {
-      throw new DomainError('El id de la barbería no puede ser un número');
+    if (typeof this.value !== 'string') {
+      throw new DomainError('El id de la barbería debe ser un string');
     }
   }
 }

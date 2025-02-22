@@ -1,37 +1,22 @@
+import { CreatePaymentDto } from 'src/core/application/payment/dtos/CreatePaymentDto';
 import { BarberShopId } from '../barberShop/value-objects/barberShopId';
-
-export enum PaymentStatus {
-  COMPLETED = 'completed',
-  PENDING = 'pending',
-  FAILED = 'failed',
-}
-
-export enum PaymentMethod {
-  CREDIT_CARD = 'credit_card',
-  STRIPE = 'stripe',
-  PSE = 'pse',
-}
-
-export class CreatePaymentDto {
-  constructor(
-    public readonly barbershopId: string,
-    public readonly amount: number,
-    public readonly status: PaymentStatus,
-    public readonly paymentMethod: PaymentMethod,
-    public readonly id?: string,
-  ) {}
-}
+import { PaymentId } from './value-objects/paymentId';
+import { PaymentAmount } from './value-objects/paymentAmount';
+import { PaymentMethod } from './value-objects/paymentMethod';
+import { PaymentStatus } from './value-objects/paymentStatus';
+import { SubscriptionId } from '../subscription/value-objects/subscriptionId';
 
 export class Payment {
   constructor(
     private readonly _barbershopId: BarberShopId,
-    private readonly _amount: number,
+    private readonly _subscriptionId: SubscriptionId,
+    private readonly _amount: PaymentAmount,
     private _status: PaymentStatus,
     private readonly _paymentMethod: PaymentMethod,
-    private readonly _id?: string,
+    private readonly _id?: PaymentId,
   ) {}
 
-  get id(): string | undefined {
+  get id(): PaymentId | undefined {
     return this._id;
   }
 
@@ -39,12 +24,16 @@ export class Payment {
     return this._barbershopId;
   }
 
-  get amount(): number {
+  get amount(): PaymentAmount {
     return this._amount;
   }
 
   get status(): PaymentStatus {
     return this._status;
+  }
+
+  get subscriptionId(): SubscriptionId {
+    return this._subscriptionId;
   }
 
   get paymentMethod(): PaymentMethod {
@@ -58,6 +47,7 @@ export class Payment {
   ): Payment {
     return new Payment(
       this._barbershopId,
+      this._subscriptionId,
       this._amount,
       fields.status || this._status,
       this._paymentMethod,
@@ -68,10 +58,10 @@ export class Payment {
   static create(createPaymentDto: CreatePaymentDto): Payment {
     return new Payment(
       new BarberShopId(createPaymentDto.barbershopId),
-      createPaymentDto.amount,
-      createPaymentDto.status,
-      createPaymentDto.paymentMethod,
-      createPaymentDto.id,
+      new SubscriptionId(createPaymentDto.subscriptionId),
+      new PaymentAmount(createPaymentDto.amount),
+      new PaymentStatus(createPaymentDto.status),
+      new PaymentMethod(createPaymentDto.paymentMethod),
     );
   }
 }

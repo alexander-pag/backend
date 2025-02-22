@@ -1,17 +1,17 @@
 import { BarberShopId } from '../../barberShop/value-objects/barberShopId';
-import { User } from '../user.entity';
+import { UserDomain } from '../user.entity';
 import { UserEmail } from '../value-objects/userEmail';
 import { UserId } from '../value-objects/userId';
 import { UserPassword } from '../value-objects/userPassword';
 import { UserPhone } from '../value-objects/userPhone';
 
 export interface IUserRepository {
-  findById(id: UserId): Promise<User | null>;
-  findByEmail(email: UserEmail): Promise<User | null>;
-  findByPhone(phone: UserPhone): Promise<User | null>;
-  findAllByBarberShopId(barberShopId: BarberShopId): Promise<User[]>;
-  findAll(): Promise<User[]>;
-  save(user: User): Promise<User>;
+  findById(id: UserId): Promise<UserDomain | null>;
+  findByEmail(email: UserEmail): Promise<UserDomain | null>;
+  findByPhone(phone: UserPhone): Promise<UserDomain | null>;
+  findAllByBarberShopId(barberShopId: BarberShopId): Promise<UserDomain[]>;
+  findAll(): Promise<UserDomain[]>;
+  save(user: UserDomain): Promise<UserDomain>;
   resetPassword(id: UserId, password: UserPassword): Promise<void>;
   delete(id: UserId): Promise<void>;
 }

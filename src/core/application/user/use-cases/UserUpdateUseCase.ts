@@ -3,7 +3,6 @@ import { UpdateUserDto } from '../dtos/UpdateUserDto';
 import { IUserRepository } from 'src/core/domain/user/repositories/IUserRepository';
 import { UserNotFoundError } from '../exceptions/UserNotFoundError';
 import { UserValidationService } from 'src/core/domain/user/service/UserValidationService';
-import { BarberShopId } from 'src/core/domain/barberShop/value-objects/barberShopId';
 import { UserEmail } from 'src/core/domain/user/value-objects/userEmail';
 import { UserName } from 'src/core/domain/user/value-objects/userName';
 import { UserPassword } from 'src/core/domain/user/value-objects/userPassword';
@@ -47,7 +46,6 @@ export class UserUpdateUseCase {
     const user = await this.userRepository.findById(new UserId(id));
 
     const updatedUser = user.update({
-      barberShopId: barberShopId ? new BarberShopId(barberShopId) : undefined,
       email: email ? new UserEmail(email) : undefined,
       name: name ? new UserName(name) : undefined,
       password: password ? new UserPassword(password) : undefined,

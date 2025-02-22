@@ -11,11 +11,11 @@ export class UserIsActive {
 
   private validate() {
     if (this.value === undefined) {
-      throw new DomainError('El estado de la suscripción no puede estar vacío');
+      throw new DomainError('El estado del usuario no puede estar vacío');
     }
 
     if (typeof this.value !== 'boolean') {
-      throw new DomainError('El estado de la suscripción no es válido');
+      throw new DomainError('El estado del usuario no es válido');
     }
   }
 }

@@ -1,4 +1,4 @@
-import { Barber } from 'src/core/domain/barber/barber.entity';
+import { BarberDomain } from 'src/core/domain/barber/barber.entity';
 import { IBarberRepository } from 'src/core/domain/barber/repositories/IBarberRepository';
 import { BarberId } from 'src/core/domain/barber/value-objects/barberId';
 import { BarberNotFoundError } from '../exceptions/BarberNotFoundError';
@@ -6,7 +6,7 @@ import { BarberNotFoundError } from '../exceptions/BarberNotFoundError';
 export class BarberGetByIdUseCase {
   constructor(private readonly barberRepository: IBarberRepository) {}
 
-  async execute(id: string): Promise<Barber> {
+  async execute(id: string): Promise<BarberDomain> {
     const existingBarber = await this.barberRepository.findById(
       new BarberId(id),
     );

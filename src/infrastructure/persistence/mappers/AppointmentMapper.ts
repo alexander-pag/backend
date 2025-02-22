@@ -6,6 +6,7 @@ import { AppointmentDate } from 'src/core/domain/appointment/value-objects/appoi
 import { AppointmentEntity } from '../entities/AppointmentEntity';
 import { AppointmentState } from 'src/core/domain/appointment/value-objects/appointmentState';
 import { AppointmentId } from 'src/core/domain/appointment/value-objects/appointmentId';
+import { BarberShopId } from 'src/core/domain/barberShop/value-objects/barberShopId';
 
 export class AppointmentMapper {
   static toEntity(appointment: Appointment): AppointmentEntity {
@@ -27,6 +28,7 @@ export class AppointmentMapper {
       new ClientId(appointmentEntity.clientId),
       new BarberId(appointmentEntity.barberId),
       new ServiceId(appointmentEntity.serviceId),
+      new BarberShopId(appointmentEntity.barberShopId),
       new AppointmentState(appointmentEntity.state),
       new AppointmentId(appointmentEntity.id),
     );

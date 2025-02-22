@@ -7,7 +7,6 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import { CreateClientDto } from 'src/core/application/client/dtos/CreateClientDto';
 import { UpdateClientDto } from 'src/core/application/client/dtos/UpdateClientDto';
 import { ClientCreateUseCase } from 'src/core/application/client/use-cases/ClientCreateUseCase';
 import { ClientDeleteUseCase } from 'src/core/application/client/use-cases/ClientDeleteUseCase';
@@ -20,22 +19,12 @@ export class ClientController {
   constructor(
     @Inject('ClientUseCases')
     private readonly clientUseCases: {
-      create: ClientCreateUseCase;
       update: ClientUpdateUseCase;
       getAll: ClientGetAllUseCase;
       getById: ClientGetByIdUseCase;
       delete: ClientDeleteUseCase;
     },
   ) {}
-
-  @Post()
-  async createUser(@Body() createClientDto: CreateClientDto) {
-    try {
-      return await this.clientUseCases.create.execute(createClientDto);
-    } catch (error) {
-      console.error(error);
-    }
-  }
 
   @Get()
   async getAllUsers() {

@@ -10,8 +10,11 @@ export class BarberId {
   }
 
   private validate(): void {
-    if (!this._value) {
-      throw new DomainError('El ID del barbero no puede estar vacío.');
+    if (!this.value) {
+      throw new DomainError('El id del barbero no puede estar vacío.');
+    }
+    if (typeof this.value !== 'string') {
+      throw new DomainError('El id del barbero debe ser un string.');
     }
   }
 }

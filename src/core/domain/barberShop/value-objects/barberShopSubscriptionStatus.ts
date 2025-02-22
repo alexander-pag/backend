@@ -11,7 +11,7 @@ export class BarberShopSubscriptionStatus {
   }
 
   private validate() {
-    if (this.value === undefined) {
+    if (!this.value) {
       throw new DomainError('El estado de la suscripción no puede estar vacío');
     }
 

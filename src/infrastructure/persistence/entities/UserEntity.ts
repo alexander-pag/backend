@@ -1,7 +1,7 @@
 import { Roles } from 'src/core/value-objects/user-role/roles';
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
-import { ClientEntity } from './ClientEntity';
 import { BarberEntity } from './BarberEntity';
+import { ClientEntity } from './ClientEntity';
 
 @Entity('user')
 export class UserEntity {
@@ -29,6 +29,12 @@ export class UserEntity {
     default: Roles.CLIENT,
   })
   role: Roles;
+
+  @Column({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
+  createdAt: Date;
 
   @Column({
     default: true,

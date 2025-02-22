@@ -7,7 +7,6 @@ export class CreateUserDto {
     public readonly email: string,
     public readonly password: string,
     public readonly phone: string,
-    public readonly isActive: boolean,
     public readonly role?: Roles,
   ) {}
 }

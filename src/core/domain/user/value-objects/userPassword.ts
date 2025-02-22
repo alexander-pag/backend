@@ -19,11 +19,14 @@ export class UserPassword {
   }
 
   private validate() {
+    if (!this.value) {
+      throw new DomainError('La contraseña no puede estar vacía');
+    }
+    if (typeof this.value !== 'string') {
+      throw new DomainError('La contraseña debe ser un string');
+    }
     if (this.value.length < 8) {
       throw new DomainError('La contraseña debe tener al menos 8 caracteres');
-    }
-    if (this.value.length > 20) {
-      throw new DomainError('La contraseña no debe tener más de 20 caracteres');
     }
     const regex =
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[$@$!#%*?&])[A-Za-z\d$@$#!%*?&]{8,20}$/;

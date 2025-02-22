@@ -34,6 +34,6 @@ export class BarberShopEntity {
   })
   subscriptionStatus: SubscriptionStatus;
 
-  @Column()
+  @Column({ nullable: true })
   subscriptionId: string;
 }

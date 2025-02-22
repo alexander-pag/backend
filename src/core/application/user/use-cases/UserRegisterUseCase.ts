@@ -2,42 +2,34 @@ import { IUserRepository } from 'src/core/domain/user/repositories/IUserReposito
 import { CreateUserDto } from '../dtos/CreateUserDto';
 import { UserEmail } from 'src/core/domain/user/value-objects/userEmail';
 import { UserPhone } from 'src/core/domain/user/value-objects/userPhone';
-import { UserEmailAlreadyExistsError } from '../exceptions/UserEmailAlreadyExistsError';
-import { UserPhoneAlreadyExistsError } from '../exceptions/UserPhoneAlreadyExistsError';
 import { UserValidationService } from 'src/core/domain/user/service/UserValidationService';
-import { User } from 'src/core/domain/user/user.entity';
+import { UserDomain } from 'src/core/domain/user/user.entity';
 import { IHashingService } from 'src/core/domain/user/repositories/IHashingRepository';
 import { UserPassword } from 'src/core/domain/user/value-objects/userPassword';
+import { DomainEventDispatcher } from 'src/infrastructure/events/domain-event-dispatcher';
+import { UserCreatedEvent } from 'src/core/domain/user/user-created.event';
+import { Roles } from 'src/core/value-objects/user-role/roles';
+import { BarberShopValidationService } from 'src/core/domain/barberShop/service/BarberShopValidationService';
+import { BarberShopId } from 'src/core/domain/barberShop/value-objects/barberShopId';
 
 export class UserRegisterUseCase {
   constructor(
     private readonly userRepository: IUserRepository,
     private readonly userService: UserValidationService,
+    private readonly barberShopService: BarberShopValidationService,
     private readonly hashingService: IHashingService,
   ) {}
 
   async execute(createUserDto: CreateUserDto): Promise<void> {
-    const emailExists = await this.userService.isEmailUnique(
-      new UserEmail(createUserDto.email),
+    await this.userService.isEmailUnique(new UserEmail(createUserDto.email));
+
+    await this.userService.isPhoneUnique(new UserPhone(createUserDto.phone));
+
+    await this.barberShopService.exists(
+      new BarberShopId(createUserDto.barberShopId),
     );
 
-    if (emailExists) {
-      throw new UserEmailAlreadyExistsError(
-        `El email ${createUserDto.email} ya se encuentra registrado.`,
-      );
-    }
-
-    const phoneExists = await this.userService.isPhoneUnique(
-      new UserPhone(createUserDto.phone),
-    );
-
-    if (phoneExists) {
-      throw new UserPhoneAlreadyExistsError(
-        `El teléfono ${createUserDto.phone} ya se encuentra registrado.`,
-      );
-    }
-
-    const user = User.create(createUserDto);
+    const user = UserDomain.create(createUserDto);
 
     const hashedPassword = await this.hashingService.encryptPassword(
       createUserDto.password,
@@ -45,6 +37,14 @@ export class UserRegisterUseCase {
 
     user.updatePassword(new UserPassword(hashedPassword, true));
 
-    await this.userRepository.save(user);
+    const createdUser = await this.userRepository.save(user);
+
+    DomainEventDispatcher.dispatch(
+      new UserCreatedEvent(
+        createdUser.id.value,
+        createdUser.barberShopId.value,
+        Roles.CLIENT,
+      ),
+    );
   }
 }
